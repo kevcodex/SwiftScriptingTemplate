@@ -3,8 +3,14 @@ matrix:
     - os: 
       - linux
       language: generic
-      install: swift package update
+      sudo: required
+      dist: trusty
+      services:
+        - docker
       script:
+        - docker pull swift
+        - docker run -it --name swiftfun swift /bin/bash
+        - swift package update
         - swift build
         - swift test
         
