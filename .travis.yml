@@ -1,7 +1,8 @@
 matrix:
   include:
-    - os: linux
-      language: swift
+    - os: 
+      - linux
+      language: generic
       install: swift package update
       script:
         - swift build
