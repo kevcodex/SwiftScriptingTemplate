@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "MiniNe",
-        "repositoryURL": "/Users/kirby/Documents/KNC_Creative/Swift_Scripting/Projects/MiniNe",
+        "repositoryURL": "https://github.com/kevcodex/MiniNe",
         "state": {
-          "branch": "master",
+          "branch": null,
           "revision": "f69cad55d6bfe74c114a5c37a1219e1cf9b951a8",
-          "version": null
+          "version": "1.0.0"
         }
       }
     ]
