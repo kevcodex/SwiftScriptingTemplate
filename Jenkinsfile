@@ -33,7 +33,6 @@ pipeline {
                         }
                         stage('Build') {
                             steps {
-                                sh 'swift package clean'
                                 sh 'swift build'
                             }
                         }
@@ -96,8 +95,6 @@ pipeline {
                                 -project ${ xcodeproj } \
                                 -scheme Run \
                                 -destination 'platform=macOS' \
-                                clean \
-                                build \
                                 test \
                                 | xcpretty -r junit
                                 """
