@@ -54,6 +54,12 @@ pipeline {
                     post {
                         always {
                             junit 'build/reports/junit.xml'
+                            sh 'rm -rf releases'
+                            sh 'mkdir releases'
+                            sh 'mkdir releases/${Release_Version}'
+                            sh 'cp .build/debug/Run releases/${Release_Version}'
+                            sh 'zip -r releases/${Release_Version}.zip releases/${Release_Version}'
+                            archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
                         }
                     }
                     stages {
@@ -76,6 +82,12 @@ pipeline {
                         stage('Update Package') {
                             steps {
                                 sh 'swift package update'
+                            }
+                        }
+                        stage('Swift Build') {
+                            steps {
+                                sh 'swift package clean'
+                                sh 'swift build'
                             }
                         }
                         stage('Mac Generate Xcode') {
