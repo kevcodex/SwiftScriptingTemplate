@@ -58,7 +58,7 @@ pipeline {
                             sh 'mkdir releases'
                             sh 'mkdir releases/${Release_Version}'
                             sh 'cp .build/debug/Run releases/${Release_Version}'
-                            sh 'zip -r releases/${Release_Version}.zip releases/${Release_Version}'
+                            sh 'cd releases; zip -r ${Release_Version}.zip ${Release_Version}'
                             archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
                         }
                     }
