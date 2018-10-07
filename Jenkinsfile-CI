@@ -46,12 +46,6 @@ pipeline {
                                 sh 'swift package update'
                             }
                         }
-                        stage('Swift Build') {
-                            steps {
-                                sh 'swift package clean'
-                                sh 'swift build'
-                            }
-                        }
                         stage('Mac Generate Xcode') {
                             steps {
                                 sh 'swift package generate-xcodeproj'
