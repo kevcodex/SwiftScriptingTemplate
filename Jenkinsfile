@@ -29,9 +29,6 @@ pipeline {
                     }
                 }
                 stage('Mac Run') {
-                    when {
-                        expression { params.SHOULD_DEPLOY == false }
-                    }
                     agent {
                         label 'ios-slave'
                     }
@@ -74,80 +71,26 @@ pipeline {
                                 """
                             }
                         }
-                    }
-                }
-                stage('Mac Build and Deploy') {
-                    when {
-                        expression { params.SHOULD_DEPLOY == true }
-                    }
-                    agent {
-                        label 'ios-slave'
-                    }
-                    environment {
-                        PATH = "/usr/local/bin:/usr/local/sbin:$PATH"
-                    }
-                    post {
-                        always {
-                            junit 'build/reports/junit.xml'
-                            sh 'rm -rf releases'
-                            sh 'mkdir releases'
-                            sh 'mkdir releases/${Release_Version}'
-                            sh 'cp .build/debug/Run releases/${Release_Version}'
-                            sh 'cd releases; zip -r ${Release_Version}.zip ${Release_Version}'
-                            archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
-                        }
-                    }
-                    stages {
-                        stage('Checkout') {
-                            steps {
-                                // Checkout files.
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: 'master']],
-                                    doGenerateSubmoduleConfigurations: false,
-                                    extensions: [],
-                                    submoduleCfg: [],
-                                    userRemoteConfigs: [[
-                                        name: 'github',
-                                        url: 'https://github.com/kevcodex/${GITHUB_PROJECT}'
-                                    ]]
-                                ])
+                        stage('Release') {
+                            when {
+                                expression { params.SHOULD_DEPLOY == true }
                             }
-                        }
-                        stage('Update Package') {
-                            steps {
-                                sh 'swift package update'
-                            }
-                        }
-                        stage('Swift Build') {
-                            steps {
-                                sh 'swift package clean'
-                                sh 'swift build'
-                            }
-                        }
-                        stage('Mac Generate Xcode') {
-                            steps {
-                                sh 'swift package generate-xcodeproj'
-                            }
-                        }
-                        stage('Build and Test') {
-                            steps {
-                                script {
-                                    xcodeproj = sh(
-                                        script: 'echo *.xcodeproj',
-                                        returnStdout: true
-                                    ).trim()
+                            stages {
+                                stage("Swift Build") {
+                                    steps {
+                                        sh 'swift package update'
+                                    }
                                 }
-                                sh """
-                                xcodebuild \
-                                -project ${ xcodeproj } \
-                                -scheme Run \
-                                -destination 'platform=macOS' \
-                                clean \
-                                build \
-                                test \
-                                | xcpretty -r junit
-                                """
+                                stage('Create Release') {
+                                    steps {
+                                        sh 'rm -rf releases'
+                                        sh 'mkdir releases'
+                                        sh 'mkdir releases/${Release_Version}'
+                                        sh 'cp .build/debug/Run releases/${Release_Version}'
+                                        sh 'cd releases; zip -r ${Release_Version}.zip ${Release_Version}'
+                                        archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
+                                    }
+                                }
                             }
                         }
                     }
