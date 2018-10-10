@@ -10,22 +10,6 @@ pipeline {
                         }
                     }
                     stages {
-                        stage('Checkout') {
-                            steps {
-                                // Checkout files.
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: 'master']],
-                                    doGenerateSubmoduleConfigurations: false,
-                                    extensions: [],
-                                    submoduleCfg: [],
-                                    userRemoteConfigs: [[
-                                        name: 'github',
-                                        url: 'https://github.com/kevcodex/${GITHUB_PROJECT}'
-                                    ]]
-                                ])
-                            }
-                        }
                         stage('Update Package') {
                             steps {
                                 sh 'swift package update'
@@ -54,39 +38,16 @@ pipeline {
                     post {
                         always {
                             junit 'build/reports/junit.xml'
-                            sh 'rm -rf releases'
-                            sh 'mkdir releases'
-                            sh 'mkdir releases/${Release_Version}'
-                            sh 'cp .build/debug/Run releases/${Release_Version}'
-                            sh 'cd releases; zip -r ${Release_Version}.zip ${Release_Version}'
-                            archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
                         }
                     }
                     stages {
-                        stage('Checkout') {
-                            steps {
-                                // Checkout files.
-                                checkout([
-                                    $class: 'GitSCM',
-                                    branches: [[name: 'master']],
-                                    doGenerateSubmoduleConfigurations: false,
-                                    extensions: [],
-                                    submoduleCfg: [],
-                                    userRemoteConfigs: [[
-                                        name: 'github',
-                                        url: 'https://github.com/kevcodex/${GITHUB_PROJECT}'
-                                    ]]
-                                ])
-                            }
-                        }
                         stage('Update Package') {
                             steps {
                                 sh 'swift package update'
                             }
                         }
-                        stage('Swift Build') {
+                        stage("Swift Build") {
                             steps {
-                                sh 'swift package clean'
                                 sh 'swift build'
                             }
                         }
@@ -113,6 +74,19 @@ pipeline {
                                 test \
                                 | xcpretty -r junit
                                 """
+                            }
+                        }
+                        stage('Release') {
+                            when {
+                                expression { params.SHOULD_DEPLOY == true }
+                            }
+                            steps {
+                                sh 'rm -rf releases'
+                                sh 'mkdir releases'
+                                sh 'mkdir releases/${Release_Version}'
+                                sh 'cp .build/debug/Run releases/${Release_Version}'
+                                sh 'cd releases; zip -r ${Release_Version}.zip ${Release_Version}'
+                                archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
                             }
                         }
                     }
