@@ -80,15 +80,13 @@ pipeline {
                             when {
                                 expression { params.SHOULD_DEPLOY == true }
                             }
-                            stage('Create Release') {
-                                steps {
-                                    sh 'rm -rf releases'
-                                    sh 'mkdir releases'
-                                    sh 'mkdir releases/${Release_Version}'
-                                    sh 'cp .build/debug/Run releases/${Release_Version}'
-                                    sh 'cd releases; zip -r ${Release_Version}.zip ${Release_Version}'
-                                    archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
-                                }
+                            steps {
+                                sh 'rm -rf releases'
+                                sh 'mkdir releases'
+                                sh 'mkdir releases/${Release_Version}'
+                                sh 'cp .build/debug/Run releases/${Release_Version}'
+                                sh 'cd releases; zip -r ${Release_Version}.zip ${Release_Version}'
+                                archiveArtifacts artifacts: 'releases/${Release_Version}.zip', fingerprint: true
                             }
                         }
                     }
