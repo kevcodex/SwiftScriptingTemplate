@@ -48,7 +48,7 @@ pipeline {
                         }
                         stage("Swift Build") {
                             steps {
-                                sh 'swift package update'
+                                sh 'swift build'
                             }
                         }
                         stage('Mac Generate Xcode') {
